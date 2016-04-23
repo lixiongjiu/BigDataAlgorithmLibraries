@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- <context:annotation-config/>-->
+
+    <!--数据库工具类-->
+
+    <bean id="jdbcUtils" class="com.sniper.bigdata.database.JdbcUtils"/>
+
+    <!--DAO注入-->
+    <bean class="com.sniper.bigdata.dao.UserDAOImpl" id="userDAO">
+        <property name="jdbcUtils" ref="jdbcUtils"/>
+    </bean>
+
+    <bean class="com.sniper.bigdata.dao.RecordDAOImpl" id="recordDAO">
+        <property name="jdbcUtils" ref="jdbcUtils"/>
+    </bean>
+
+    <bean class="com.sniper.bigdata.dao.StatusDAOImpl" id="statusDAO">
+        <property name="jdbcUtils" ref="jdbcUtils"/>
+    </bean>
+
+    <!--ssh核心线程注入-->
+    <bean class="com.sniper.bigdata.ssh.GanymedUtils" id="ganymedUtils">
+        <property name="host" value="192.168.1.106"/>
+        <property name="username" value="hadoop"/>
+        <property name="password" value="hadoop"/>
+    </bean>
+
+    <bean class="com.sniper.bigdata.threads.ExecuteRunnable" id="executeRunnable">
+        <property name="ganymedUtils" ref="ganymedUtils"/>
+    </bean>
+
+    <!--service注入-->
+    <bean class="com.sniper.bigdata.service.RunService" id="runService">
+        <property name="executeRunnable" ref="executeRunnable"/>
+        <property name="ganymedUtils" ref="ganymedUtils"/>
+    </bean>
+
+    <bean class="com.sniper.bigdata.service.UserService" id="userService">
+        <property name="userDAO" ref="userDAO"/>
+    </bean>
+
+    <bean class="com.sniper.bigdata.service.RecordService" id="recordService">
+        <property name="recordDAO" ref="recordDAO"/>
+        <property name="statusDAO" ref="statusDAO"/>
+        <property name="userDAO" ref="userDAO"/>
+     </bean>
+
+
+    <!--设置cookie生存时间,分页的大小-->
+    <bean class="com.sniper.bigdata.controller.UserController">
+        <property name="cookieLife">
+            <value type="int">43200</value>
+        </property>
+        <property name="pageSize">
+            <value type="int">5</value>
+        </property>
+    </bean>
+
+</beans>
